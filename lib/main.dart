@@ -19,29 +19,36 @@ class _MyAppState extends State<MyApp> {
   int dropDownValue;
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Ortalama Hesaplayıcı")),
-        body: Column(children: [
-          Container(
-            margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
-            child: Form(
-              key: formKey,
-              child: Column(children: [
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text("Ders Sayısı:"),
-                  SizedBox(width: 20),
-                  buildLessonNumberDropdown()
-                ]),
-                SizedBox(height: 20.0),
-                buildLessonListHeader(),
-                Column(
-                  children: List.generate(lessonRows.length, (i) {
-                    return buildLessonRow(lessonRows[i]);
-                  }),
-                )
+      appBar: AppBar(title: Text("Burranın Ortalama Hesaplayıcısı")),
+      body:
+          ListView(shrinkWrap: true, padding: EdgeInsets.all(15.0), children: [
+        Container(
+          margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+          child: Form(
+            key: formKey,
+            child: Column(children: [
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Text("Ders Sayısı:"),
+                SizedBox(width: 20),
+                buildLessonNumberDropdown()
               ]),
-            ),
+              SizedBox(height: 20.0),
+              Text("(Ders adı girmek zorunlu değildir)",
+                  style: TextStyle(color: Colors.red)),
+              SizedBox(height: 20.0),
+              buildLessonListHeader(),
+              Column(
+                children: List.generate(lessonRows.length, (i) {
+                  return buildLessonRow(lessonRows[i]);
+                }),
+              ),
+            ]),
           ),
-        ]));
+        ),
+      ]),
+      bottomNavigationBar:
+          Container(height: 60, child: buildCalculateButton(context)),
+    );
   }
 
   void noteInputCreator(int parse) {
@@ -84,7 +91,8 @@ class _MyAppState extends State<MyApp> {
           noteInputCreator(newValue);
         });
       },
-      items: <int>[0, 1, 2, 3, 4].map<DropdownMenuItem<int>>((int value) {
+      items: <int>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+          .map<DropdownMenuItem<int>>((int value) {
         return DropdownMenuItem<int>(
           value: value,
           child: Text(value.toString()),
@@ -146,7 +154,7 @@ class _MyAppState extends State<MyApp> {
           fit: FlexFit.tight,
           flex: 2,
           child: DropdownButton<double>(
-              value: 1,
+              value: lesson.getCredit,
               isExpanded: true,
               icon: const Icon(Icons.arrow_downward),
               iconSize: 24,
@@ -157,8 +165,10 @@ class _MyAppState extends State<MyApp> {
                 color: Colors.deepPurpleAccent,
               ),
               onChanged: (double newValue) {
-                lesson.credit = newValue;
-                print(lesson.credit);
+                setState(() {
+                  lesson.credit = newValue;
+                  print(lesson.credit);
+                });
               },
               items: <double>[
                 1,
@@ -247,5 +257,39 @@ class _MyAppState extends State<MyApp> {
         break;
     }
     return grade;
+  }
+
+  Widget buildCalculateButton(BuildContext context) {
+    return RaisedButton(
+        color: Colors.blueAccent,
+        child: Text("Hesapla",
+            style: TextStyle(color: Colors.white, fontSize: 17)),
+        onPressed: () {
+          if (lessonRows.length < 1) {
+            alert(context, "Hata", "Ders sayısı 0 olamaz");
+          } else {
+            double grade;
+            double credit;
+            double sumGrade = 0;
+            double sumCredits = 0;
+            lessonRows.forEach((element) {
+              grade = element.grade;
+              credit = element.credit;
+              sumCredits += credit;
+              sumGrade += grade * credit;
+            });
+            double result = sumGrade / sumCredits;
+            String formattedValue = result.toStringAsFixed(2);
+            alert(context, "Sonuç", "Ortalamanız: " + formattedValue);
+          }
+        });
+  }
+
+  void alert(BuildContext context, String title, String content) {
+    var alert = AlertDialog(
+      title: Text(title),
+      content: Text(content),
+    );
+    showDialog(context: context, builder: (BuildContext context) => alert);
   }
 }

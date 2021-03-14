@@ -39,4 +39,8 @@ class Lesson {
     }
     return gradeAsString;
   }
+
+  double get getCredit {
+    return this.credit;
+  }
 }
