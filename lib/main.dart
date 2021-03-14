@@ -13,7 +13,7 @@ class MyApp extends StatefulWidget {
 List<Lesson> lessonRows = [];
 
 var formKey = GlobalKey<FormState>();
-var lessonNumberInputText = "Ders sayısı";
+var lessonNumberInputText = "Ders Sayısı";
 
 class _MyAppState extends State<MyApp> {
   int dropDownValue;
@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
               key: formKey,
               child: Column(children: [
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text("Ders sayısı:"),
+                  Text("Ders Sayısı:"),
                   SizedBox(width: 20),
                   buildLessonNumberDropdown()
                 ]),
@@ -35,7 +35,7 @@ class _MyAppState extends State<MyApp> {
                 buildLessonListHeader(),
                 Column(
                   children: List.generate(lessonRows.length, (i) {
-                    return lessonRows[i].lessonRow();
+                    return buildLessonRow(lessonRows[i]);
                   }),
                 )
               ]),
@@ -48,7 +48,9 @@ class _MyAppState extends State<MyApp> {
     lessonRows.clear();
     setState(() {
       for (var i = 0; i < parse; i++) {
-        lessonRows.add(new Lesson("", 4.0, 1));
+        Lesson newLesson = Lesson("", 4.0, 1.0);
+        lessonRows.add(newLesson);
+        buildLessonRow(newLesson);
       }
     });
   }
@@ -77,6 +79,7 @@ class _MyAppState extends State<MyApp> {
       ),
       onChanged: (int newValue) {
         setState(() {
+          print(newValue);
           dropDownValue = newValue;
           noteInputCreator(newValue);
         });
@@ -88,5 +91,161 @@ class _MyAppState extends State<MyApp> {
         );
       }).toList(),
     );
+  }
+
+  Widget buildLessonRow(Lesson lesson) {
+    return Row(children: [
+      Flexible(
+          fit: FlexFit.tight,
+          flex: 4,
+          child: TextFormField(onSaved: (String value) {
+            lesson.name = value;
+          })),
+      SizedBox(width: 30),
+      Flexible(
+          fit: FlexFit.tight,
+          flex: 2,
+          child: DropdownButton<String>(
+            value: lesson.getGradeAsString,
+            isExpanded: true,
+            icon: const Icon(Icons.arrow_downward),
+            iconSize: 24,
+            elevation: 16,
+            style: const TextStyle(color: Colors.deepPurple),
+            underline: Container(
+              height: 2,
+              color: Colors.deepPurpleAccent,
+            ),
+            onChanged: (String newValue) {
+              double grade = gradeStringToInt(newValue);
+
+              setState(() {
+                lesson.grade = grade;
+                print(lesson.grade);
+              });
+            },
+            items: <String>[
+              'AA',
+              'BA',
+              'BB',
+              'CB',
+              'CC',
+              'DC',
+              'DD',
+              'FD',
+              'FF'
+            ].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          )),
+      SizedBox(width: 30),
+      Flexible(
+          fit: FlexFit.tight,
+          flex: 2,
+          child: DropdownButton<double>(
+              value: 1,
+              isExpanded: true,
+              icon: const Icon(Icons.arrow_downward),
+              iconSize: 24,
+              elevation: 16,
+              style: const TextStyle(color: Colors.deepPurple),
+              underline: Container(
+                height: 2,
+                color: Colors.deepPurpleAccent,
+              ),
+              onChanged: (double newValue) {
+                lesson.credit = newValue;
+                print(lesson.credit);
+              },
+              items: <double>[
+                1,
+                1.5,
+                2,
+                2.5,
+                3,
+                3.5,
+                4,
+                4.5,
+                5,
+                5.5,
+                6,
+                6.5,
+                7,
+                7.5,
+                8,
+                8.5,
+                9,
+                9.5,
+                10
+              ].map<DropdownMenuItem<double>>((double value) {
+                return DropdownMenuItem<double>(
+                  value: value,
+                  child: Text(value.toString()),
+                );
+              }).toList())),
+    ]);
+  }
+
+  double gradeStringToInt(String newValue) {
+    double grade;
+    switch (newValue) {
+      case 'AA':
+        {
+          grade = 4;
+        }
+        break;
+
+      case 'BA':
+        {
+          grade = 3.5;
+        }
+        break;
+
+      case 'BB':
+        {
+          grade = 3;
+        }
+        break;
+
+      case 'CB':
+        {
+          grade = 2.5;
+        }
+        break;
+
+      case 'CC':
+        {
+          grade = 2;
+        }
+        break;
+
+      case 'DC':
+        {
+          grade = 1.5;
+        }
+        break;
+
+      case 'DD':
+        {
+          grade = 1;
+        }
+        break;
+
+      case 'FD':
+        {
+          grade = 0.5;
+        }
+        break;
+
+      case 'FF':
+        {
+          grade = 0;
+        }
+        break;
+    }
+    return grade;
   }
 }
